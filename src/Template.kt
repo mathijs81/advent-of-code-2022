@@ -18,6 +18,6 @@ fun main() {
 
     testInstance.part1().let { check(it == EXPECTED_1) { "part1: $it != $EXPECTED_1" } }
     println(instance.part1())
-    testInstance.part2().let { check(it == EXPECTED_2) { "part2: $it != $EXPECTED_1" } }
+    testInstance.part2().let { check(it == EXPECTED_2) { "part2: $it != $EXPECTED_2" } }
     println(instance.part2())
 }
