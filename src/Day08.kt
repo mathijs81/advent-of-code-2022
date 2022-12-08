@@ -3,7 +3,7 @@ import kotlin.streams.toList
 private const val EXPECTED_1 = 21
 private const val EXPECTED_2 = 8
 
-inline fun <T> List<List<Int>>.map (action: (Int, Int, Int) -> T): List<T> {
+private inline fun <T> List<List<Int>>.map (action: (Int, Int, Int) -> T): List<T> {
     val result = mutableListOf<T>()
     for ((y, row) in this.withIndex()) {
         for ((x, value) in row.withIndex()) {

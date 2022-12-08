@@ -1,9 +1,9 @@
 import java.io.File
 
-open class Solver(val isTest: Boolean) {
+open class Solver(val isTest: Boolean, val extraPath: String = "") {
     private val filename
-        get() = "${this.javaClass.name}${if (isTest) "_test" else ""}.txt"
+        get() = "${this.javaClass.simpleName}${if (isTest) "_test" else ""}.txt"
 
-    fun readAsLines() = File("src", filename).readLines()
-    fun readAsString() = File("src", filename).readText()
+    fun readAsLines() = File("src$extraPath", filename).readLines()
+    fun readAsString() = File("src$extraPath", filename).readText()
 }
