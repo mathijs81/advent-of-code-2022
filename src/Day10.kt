@@ -2,36 +2,21 @@ private const val EXPECTED_1 = 13140
 private const val EXPECTED_2 = 0
 
 private class Day10(isTest: Boolean) : Solver(isTest) {
-    fun generateX(): List<Pair<Int, Int>> {
-        var cycleNo = 1
-        var x = 1
-        return readAsLines().flatMap {
-            val parts = it.split(" ")
-            when (parts[0]) {
-                "noop" -> {
-                    listOf(cycleNo++ to x)
-                }
-
-                "addx" -> {
-                    try {
-                        listOf(cycleNo to x, cycleNo + 1 to x)
-                    } finally {
-                        cycleNo += 2
-                        x += parts[1].toInt()
-                    }
-                }
-
-                else -> error("")
-            }
+    fun generateX() = readAsLines().flatMap {
+        val parts = it.split(" ")
+        when (parts[0]) {
+            "noop" -> listOf(0)
+            "addx" -> listOf(0, parts[1].toInt())
+            else -> error("")
         }
-    }
+    }.runningFold(1, Int::plus)
 
-    fun part1() = generateX().filter { (it.first - 20) % 40 == 0 }.sumOf { it.first * it.second }
+    fun part1() = (listOf(0) + generateX()).withIndex().filter { (index, _) -> (index - 20) % 40 == 0 }.sumOf { (index, value) -> (index * value) }
 
     fun part2(): Any {
         generateX().chunked(40).forEach { row ->
-            for ((index, pair) in row.withIndex()) {
-                if (index in (pair.second - 1..pair.second + 1))
+            for ((index, x) in row.withIndex()) {
+                if (index in x - 1..x + 1)
                     print('#')
                 else print(" ")
             }
