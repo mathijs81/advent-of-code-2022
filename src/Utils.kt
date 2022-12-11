@@ -22,3 +22,5 @@ fun String.md5() = BigInteger(1, MessageDigest.getInstance("MD5").digest(toByteA
 inline fun <reified T> Iterable<T>.sumInt(intMapping: (T) -> Int): Int {
     return sumOf { intMapping(it) }
 }
+
+fun gcd(a: Long, b: Long): Long = if (b == 0L) a else gcd(b, a % b)
