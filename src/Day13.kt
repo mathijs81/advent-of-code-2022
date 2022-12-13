@@ -25,27 +25,13 @@ fun parse(data: String): Any {
     }
 }
 
-tailrec fun compare(a: Any?, b: Any?): Int {
+fun compare(a: Any?, b: Any?): Int {
     if (a is Int && b is Int) {
         return a - b
     }
-    if (a is List<*> && b is List<*>) {
-        for (i in 0 until minOf(a.size, b.size)) {
-            compare(a[i], b[i]).let { if (it != 0) return it }
-        }
-        return a.size - b.size
-        // Functional with "firstNotNullOfOrNull" but that seems too contrived to me:
-        //        return (0 until minOf(a.size, b.size)).firstNotNullOfOrNull { index ->
-        //            compare(a[index], b[index]).let { if (it == 0) null else it }
-        //        } ?: (a.size - b.size)
-    }
-    if (a is Int) {
-        return compare(listOf(a), b)
-    }
-    if (b is Int) {
-        return compare(a, listOf(b))
-    }
-    error("unexpected $a $b")
+    val left = if (a is Int) listOf(a) else a as List<*>
+    val right = if (b is Int) listOf(b) else b as List<*>
+    return left.zip(right, ::compare).firstOrNull { it != 0 } ?: (left.size - right.size)
 }
 
 private class Day13(isTest: Boolean) : Solver(isTest) {
