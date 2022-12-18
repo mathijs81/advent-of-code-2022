@@ -21,35 +21,23 @@ private class Day18(isTest: Boolean) : Solver(isTest) {
 
     fun part1() = data.sumOf { point -> dirs.count { dir -> point + dir !in data } }
 
-    fun isInside(point: List<Int>, result: MutableMap<List<Int>, Boolean>): Boolean {
-        if (point in data) {
-            return true
+    fun isInside(point: List<Int>, result: MutableMap<List<Int>, Boolean>, seen: MutableSet<List<Int>>): Boolean {
+        if(point in data || point in seen) return true
+        if((point zip bounds).any { (p, b) -> p !in b.first..b.second }) return false
+        result[point]?.let { return it }
+        seen.add(point)
+        return if (dirs.all { isInside(point + it, result, seen) }) {
+            seen.forEach { result[it] = true }
+            true
+        } else {
+            seen.forEach { result[it] = false }
+            false
         }
-        val queue = ArrayDeque(listOf(point))
-        val seen = mutableSetOf(point)
-        while (queue.isNotEmpty()) {
-            val point = queue.removeFirst()
-            if (result[point] == false || point.withIndex().any { (i, value) -> value !in bounds[i].first..bounds[i].second }) {
-                (seen + queue).forEach { result[it] = false }
-                return false
-            }
-            if (result[point] != true) {
-                dirs.forEach {
-                    val np = point + it
-                    if (np !in data && np !in seen) {
-                        queue.add(np)
-                        seen.add(np)
-                    }
-                }
-            }
-        }
-        (seen + queue).forEach { result[it] = true }
-        return true
     }
 
     val insidePoints = mutableMapOf<List<Int>, Boolean>()
     fun part2() = data.sumOf { point ->
-        dirs.count { dir -> !isInside(point + dir, insidePoints) }
+        dirs.count { dir -> !isInside(point + dir, insidePoints, mutableSetOf()) }
     }
 }
 
