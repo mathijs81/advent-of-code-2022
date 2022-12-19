@@ -28,3 +28,7 @@ fun gcd(a: Long, b: Long): Long = if (b == 0L) a else gcd(b, a % b)
 val NUM_REGEX = "-?[0-9]*\\.?[0-9]*".toRegex()
 fun String.splitNumbers(): List<Number> =
         NUM_REGEX.findAll(this).filter { it.value.isNotEmpty() }.map { if ("." in it.value) it.value.toDouble() else it.value.toInt() }.toList()
+
+val INT_REGEX = "-?[0-9]*".toRegex()
+fun String.splitInts(): List<Int> =
+        INT_REGEX.findAll(this).filter { it.value.isNotEmpty() }.map { it.value.toInt() }.toList()
