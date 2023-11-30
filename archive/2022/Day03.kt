@@ -1,3 +1,5 @@
+package aoc2022
+
 private const val EXPECTED_1 = 157
 private const val EXPECTED_2 = 70
 
