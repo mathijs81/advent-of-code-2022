@@ -2,8 +2,8 @@ from aocd.models import Puzzle
 from aocd.get import current_day, most_recent_year
 
 if __name__ == "__main__":
-    #day = current_day()
-    day = 1
+    day = current_day()
+    #day = 1
     year = most_recent_year()
 
     puzzle = Puzzle(year, day)
