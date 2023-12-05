@@ -32,3 +32,5 @@ fun String.splitNumbers(): List<Number> =
 val INT_REGEX = "-?[0-9]*".toRegex()
 fun String.splitInts(): List<Int> =
         INT_REGEX.findAll(this).filter { it.value.isNotEmpty() }.map { it.value.toInt() }.toList()
+fun String.splitLongs(): List<Long> =
+        INT_REGEX.findAll(this).filter { it.value.isNotEmpty() }.map { it.value.toLong() }.toList()
