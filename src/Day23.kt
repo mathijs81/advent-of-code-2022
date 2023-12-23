@@ -132,21 +132,23 @@ private class Day23(isTest: Boolean) : Solver(isTest) {
         }
         buildGraph(Point(0, 1), Point(0, 1), Point(1, 1), 1)
 
-        fun longestPath(visited: Set<Point>): Int {
-            if (visited.last() == Point(Y-1, X-2)) {
+        val visited = HashSet<Point>()
+        fun longestPath(p: Point): Int {
+            if (p.x == X-2 && p.y == Y-1) {
                 return 0
             }
-
-            return graph[visited.last()]!!.mapNotNull { (point, dist) ->
+            return graph[p]!!.mapNotNull { (point, dist) ->
                 if (point !in visited) {
-                    longestPath(visited + point) + dist
+                    visited += point
+                    val result = longestPath(point) + dist
+                    visited -= point
+                    result
                 } else {
                     null
                 }
             }.maxOrNull() ?: -100000
         }
-
-        return longestPath(setOf(Point(0, 1)))
+        return longestPath(Point(0, 1).also { visited.add(it) })
     }
 }
 
