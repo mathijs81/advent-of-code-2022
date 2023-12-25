@@ -2,21 +2,20 @@ private const val EXPECTED_1 = 54
 private const val EXPECTED_2 = 0
 
 private class Day25(isTest: Boolean) : Solver(isTest) {
-    fun flowCount(conn: MutableMap<String, MutableSet<String>>, src: String, dest: String): Pair<Int, List<Pair<String, String>>?> {
-        val cap = mutableMapOf<Pair<String, String>, Int>()
-
-        for ((s, dests) in conn.entries) {
-            for(d in dests) {
-                cap[s to d] = 1
-            }
-        }
+    fun flowCount(
+        conn: MutableMap<String, MutableSet<String>>,
+        src: String,
+        dest: String
+    ): Pair<Int, List<Pair<String, String>>?> {
+        val allEdges = conn.flatMap { (src, dests) -> dests.map { src to it } }
+        val cap = allEdges.associateWith { 1 }.toMutableMap()
 
         var n = 0
 
         val seen = mutableSetOf<String>()
-        fun augmentFlow(p: String): List<Pair<String, String>>? {
+        fun augmentFlow(p: String): Boolean {
             if (p == dest) {
-                return listOf()
+                return true
             }
             seen.add(p)
             for (d in conn[p]!!) {
@@ -25,68 +24,39 @@ private class Day25(isTest: Boolean) : Solver(isTest) {
                 }
                 val e = p to d
                 if (cap[e]!! > 0) {
-                    cap.merge(e, -1) { a,b -> a+b}
-                    cap.merge(d to p, 1) { a, b -> a + b}
-                    augmentFlow(d)?.let {
-                        return it.toMutableList().apply { add(0, p to d) }
+                    cap.merge(e, -1) { a, b -> a + b }
+                    cap.merge(d to p, 1) { a, b -> a + b }
+                    if (augmentFlow(d)) {
+                        return true
                     }
-                    cap.merge(e, 1) { a,b -> a+b}
-                    cap.merge(d to p, -1) { a, b -> a + b}
+                    cap.merge(e, 1) { a, b -> a + b }
+                    cap.merge(d to p, -1) { a, b -> a + b }
                 }
             }
-            return null
+            return false
         }
 
-        var lastpath: List<Pair<String, String>>? = null
-        while(true) {
+        while (augmentFlow(src)) {
             seen.clear()
-            lastpath = augmentFlow(src) ?: break
             n++
-
         }
 
-        return n to lastpath
+        // Return fully saturated edges
+        return n to allEdges.filter { cap[it] == 0 }
     }
 
-
-    fun removeEdge(conn: MutableMap<String, MutableSet<String>>, n: Int) {
-        val target = 3 - n - 1
-        println("Removing edge from ${conn.size} to reach target $target")
-        while(true) {
-            val a = (0..2).map { conn.keys.shuffled().first() }
-            val b = (0..2).map { conn.keys.shuffled().first() }
-
-            if ((0..2).any {a[it] == b[it] }) {
-                continue
-            }
-
-            fun score(): Pair<Int, List<Pair<String, String>>?> {
-                val r = (0..2).map { flowCount(conn, a[it], b[it]) }
-                return if (r.map { it.first }.distinct().size == 1) {
-                    r.first()
-                } else {
-                    -1 to null
+    fun minCutEdges(conn: MutableMap<String, MutableSet<String>>): List<Pair<String, String>> {
+        val nodes = conn.keys.toList()
+        for (i in nodes.indices) {
+            for (j in i + 1..<nodes.size) {
+                val (cut, edges) = flowCount(conn, nodes[i], nodes[j])
+                if (cut == 3) {
+                    println("Cut between ${nodes[i]} and ${nodes[j]} -- $edges")
+                    return edges!!
                 }
-            }
-
-            val (count, path) = score()
-            if (count != target + 1) {
-                continue
-            }
-
-            for (edge in path!!) {
-                conn[edge.first]!!.remove(edge.second)
-                conn[edge.second]!!.remove(edge.first)
-                if (score().first == target) {
-                    println("removed $edge, which reduces flow from $a to $b")
-                    return
-                } else {
-                    //println("Couldn't remove $edge")
-                }
-                conn[edge.first]!!.add(edge.second)
-                conn[edge.second]!!.add(edge.first)
             }
         }
+        error("no min cut 3")
     }
 
     fun part1(): Any {
@@ -95,14 +65,14 @@ private class Day25(isTest: Boolean) : Solver(isTest) {
             parts[0] to parts[1].split(" ").toMutableSet()
         }.toMap().toMutableMap()
 
-        for ((a,b) in conn.entries.toList()) {
-            for(d in b) {
+        for ((a, b) in conn.entries.toList()) {
+            for (d in b) {
                 conn.getOrPut(d) { mutableSetOf() }.add(a)
             }
         }
 
-        repeat(3) {
-            removeEdge(conn, it)
+        for ((src, dest) in minCutEdges(conn)) {
+            conn[src]!!.remove(dest)
         }
 
         val seen = mutableSetOf<String>()
